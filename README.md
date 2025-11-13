@@ -1,4 +1,4 @@
-## A custom navigation environment built on top of Gymnasium's Ant-v5.
+## A custom navigation environment built on top of Gymnasium's Ant-v5
 
 ### You can change:
 - goal: [x, y]
@@ -17,9 +17,10 @@
 ### How to create a instance for the class **AntNavigationEnv**:
 
 #### 1. If you want to run multiple environments in parallel for efficient training
-'''python
-def make_env_fn(rank: int = 0, seed: int = 42):
 
+```python
+
+def make_env_fn(rank: int = 0, seed: int = 42):
     def _init():
         env = AntNavigationEnv(
             goal=[5, 5],     
@@ -32,12 +33,13 @@ def make_env_fn(rank: int = 0, seed: int = 42):
     return _init
 
 envs = SubprocVecEnv([make_env_fn(rank=i) for i in range(n_envs)])
-'''
+
+```
 
 #### 2. If you want to run single environment
-'''python
+````python
 '''keep same function above'''
 
 envs = env = make_env_fn(rank=0)() #change here
-'''
+````
 
