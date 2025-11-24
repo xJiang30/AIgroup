@@ -1,16 +1,12 @@
 """
 AntNavigationEnv
 -----------------
-A custom navigation environment built on top of Gymnasium's Ant-v5.
-
 Stages:
 1. Goal Navigation
-2. Obstacle Avoidance
-3. Multi-Goal (waypoints) Navigation
+
 """
 
 import gymnasium as gym
-from gymnasium import spaces
 import numpy as np
 from typing import Optional
 
@@ -27,8 +23,8 @@ class AntNavigationEnv(gym.Env):
     ):
         super().__init__()
 
-        # === Call MuJoCo's Ant-v5 ===
-        self.env = gym.make("Ant-v5", render_mode=render_mode)
+        # === MuJoCo's Ant-v5 ===
+        self.env = gym.make("Ant-v5", render_mode=render_mode, terminate_when_unhealthy=False) ## 禁用健康判定
         self.goal = np.array(goal if goal is not None else [5.0, 5.0])
         self.obstacles = obstacles or []  # list of (x, y, radius)
         self.waypoints = waypoints or []
@@ -36,12 +32,12 @@ class AntNavigationEnv(gym.Env):
 
         # === Reward Shaping ===
         self.reward_cfg = reward_cfg or {
-            "progress": 4.0,
+            "progress": 2.0,
             "collision": -2.0,
             "waypoint": 3.0,
             "control": -0.05,
-            "goal": 6.0,
-            "alive": 0.05,
+            "goal": 5.0,
+            "alive": 0.1,
         }
 
         # === state / action space ===
@@ -70,30 +66,30 @@ class AntNavigationEnv(gym.Env):
         # === Rewards base on different tasks ===
         reward = 0.0
 
-        # 1. progress（lower distance to goal）
+        # progress
         progress = self.prev_distance - dist_to_goal
         reward += self.reward_cfg["progress"] * progress
 
-        # 2. Waypoint
+        # Waypoint
         if self.waypoints and self.current_waypoint < len(self.waypoints):
             wp = np.array(self.waypoints[self.current_waypoint])
             if np.linalg.norm(wp - ant_pos) < 0.5:
                 reward += self.reward_cfg["waypoint"]
                 self.current_waypoint += 1
 
-        # 3. goal
-        if dist_to_goal < 1: # can be adjust
+        # goal
+        if dist_to_goal < 0.9: # can be adjusted
             reward += self.reward_cfg["goal"]
             terminated = True
 
-        # 4. collision
+        # collision
         if self._check_collision(ant_pos):
             reward += self.reward_cfg["collision"]
 
-        # 5. alive
+        # alive
         reward += self.reward_cfg["alive"]
 
-        # 6. control
+        # control
         reward += self.reward_cfg["control"] * np.square(action).sum()
 
         # === update distance ===
@@ -111,7 +107,7 @@ class AntNavigationEnv(gym.Env):
     def close(self):
         self.env.close()
 
-    # === Tools ===
+    # ===  Utilities ===
     def _distance_to_goal(self):
         ant_pos = self.env.unwrapped.data.qpos[:2].copy()
         return np.linalg.norm(self.goal - ant_pos)
