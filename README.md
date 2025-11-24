@@ -4,7 +4,7 @@
 
 ```
 ├── project/               
-│   ├── envs/                // 3 stages' navigation     
+│   ├── envs/                // 3 stages' environments
 │   │ 
 │   ├── trains/                // training configurations for 3 stages            
 │   │ 
