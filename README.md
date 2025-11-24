@@ -1,3 +1,20 @@
+# Project： Train agent to navigate, avoid obstacle, pass waypoints in Gymnasium's Ant 3D environment
+
+## Structure
+
+```
+├── project/               
+│   ├── envs/                // 3 stages' navigation     
+│   │ 
+│   ├── trains/                // training configurations for 3 stages            
+│   │ 
+│   ├── visual/                // visualization for 3 stages    
+│   ├── baseline.py            // Random policy
+│   ├── requirements.txt    
+│   └── README.md              
+```
+
+
 ## A custom navigation environment built on top of Gymnasium's Ant-v5
 
 ### You can change:
